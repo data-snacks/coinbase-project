@@ -20,7 +20,17 @@ services:
       - ./.env
     healthcheck:
       test: ["CMD", "bash", "-c", "unset" , "JMX_PORT" ,";" ,"kafka-topics.sh","--zookeeper","zookeeper:2181","--list"]
-
+  
+  #We need to wait until kafka ends. 
+  coinbase-fetcher:
+    build: 
+      context: ./coinbase-fetcher
+      dockerfile: Dockerfile
+    depends_on:
+      kafka:
+        condition: service_healthy
+    env_file:
+      - ./.env
 networks:
   default:
     driver: bridge
