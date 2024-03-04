@@ -20,7 +20,22 @@ services:
       - ./.env
     healthcheck:
       test: ["CMD", "bash", "-c", "unset" , "JMX_PORT" ,";" ,"kafka-topics.sh","--zookeeper","zookeeper:2181","--list"]
-  
+  #storage with minio
+  minio:
+    image: quay.io/minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    env_file:
+      - ./.env
+    volumes:
+      - 'minio_data:/data'
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   #We need to wait until kafka ends. 
   coinbase-fetcher:
     build: 
@@ -31,6 +46,22 @@ services:
         condition: service_healthy
     env_file:
       - ./.env
+  kafka-to-minio:
+    build: 
+        context: ./kafka-to-minio
+        dockerfile: Dockerfile
+    depends_on:
+      kafka:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      coinbase-fetcher:
+        condition: service_completed_successfully
+    env_file:
+      - ./.env
 networks:
   default:
     driver: bridge
+volumes:
+  minio_data:
+    driver: local
