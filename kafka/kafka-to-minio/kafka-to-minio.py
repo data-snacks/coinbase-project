@@ -40,10 +40,16 @@ if not minio_client.bucket_exists(MINIO_BUCKET):
 
 def upload_to_minio(dataframe, filename):
     try:
-        with BytesIO() as data:
+        with BytesIO() as buffer:
             table = pa.Table.from_pandas(dataframe)
-            pq.write_table(table, filename)
-            minio_client.put_object(MINIO_BUCKET, filename, data, length=data.getbuffer().size)
+            pq.write_table(table, buffer)
+            buffer.seek(0)
+            minio_client.put_object(
+                bucket_name=MINIO_BUCKET,
+                object_name=filename,
+                data=buffer,
+                length=len(buffer.getvalue()),
+            )
             print(f"Uploaded {filename} to MinIO")
     except S3Error as exc:
         print(f"Failed to upload to MinIO: {exc}")
@@ -52,6 +58,7 @@ def consume_data():
     for message in consumer:
         data = message.value
         if data:
+            print("Recive data")
             df = pd.DataFrame([data])
             timestamp = pd.to_datetime('now').strftime('%Y-%m-%d_%H-%M-%S')
             filename = f"coinbase_{timestamp}.parquet"

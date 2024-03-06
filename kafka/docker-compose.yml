@@ -55,8 +55,6 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-      coinbase-fetcher:
-        condition: service_completed_successfully
     env_file:
       - ./.env
 networks:
