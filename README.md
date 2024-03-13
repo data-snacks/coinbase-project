@@ -26,6 +26,14 @@ KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR = 1
 # ZOOKEEPER
 ZOOKEEPER_CLIENT_PORT = 2181
 ZOOKEEPER_TICK_TIME = 2000
+
+# MINIO
+MINIO_ENDPOINT = 'minio:9000'
+MINIO_ACCESS_KEY = 'minioadmin'
+MINIO_SECRET_KEY = 'minioadmin'
+MINIO_BUCKET = 'coinbase-data'
+MINIO_ROOT_USER= minioadmin
+MINIO_ROOT_PASSWORD= minioadmin
 ```
 
 Please ensure you replace the placeholder values with your actual configurations where necessary.
